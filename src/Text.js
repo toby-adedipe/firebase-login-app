@@ -23,7 +23,7 @@ class Text extends Component {
         this.login = this.login.bind(this);
         this.signup = this.signup.bind(this);
         this.logout = this.logout.bind(this);
-
+        this.google = this.google.bind(this);
     }
 
     login(event){
@@ -87,6 +87,26 @@ class Text extends Component {
         })
         lout.classList.add('hide');
     }
+    google(event){
+        var provider = new firebase.auth.GoogleAuthProvider();
+        firebase.auth().signInWithPopup(provider)
+            .then( result => {
+                var user = result.user;
+                console.log(user);
+
+                firebase.database().ref('users/'+user.uid).set({
+                    email: user.email,
+                    name: user.displayName
+                });
+            })
+            .catch(e =>{
+                var msg = e.message;
+                console.log(msg);
+                this.setState({
+                    error: msg
+                })
+            })
+    }
 
     render(){
         return(
@@ -98,6 +118,7 @@ class Text extends Component {
                 <button onClick={this.signup}>Sign up</button>
                 <button onClick={this.logout} id="logout" className="hide">Log out</button>
                 <p>{this.state.error}</p>
+                <button onClick={this.google}>Sign in with google</button>
             </div>
         )
     }
